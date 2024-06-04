@@ -7,7 +7,7 @@ contextBridge.exposeInMainWorld("MessageAPI", {
         ipcRenderer.on("socket-message", wrappedCallback);
         return () => ipcRenderer.off("socket-message", wrappedCallback)
     },
-    send(message: unknown) {
-        ipcRenderer.send("socket-message", message);
-    }
+    send(message: unknown, topic: string) {
+        ipcRenderer.send('send-message', { message, topic });
+    },
 })

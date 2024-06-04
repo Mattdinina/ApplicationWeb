@@ -23,7 +23,7 @@ export function SocketProvider({ children }: { children: ReactNode }) {
             onMessage(callback) {
                 return window.MessageAPI.addMessageListener(callback);
             },
-            send(message) {
+            send(message,) {
                 window.MessageAPI.send(message);
                 console.log('message : ' + message.content)
             },

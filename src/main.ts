@@ -35,15 +35,40 @@ const createWindow = () => {
     mainWindow.webContents.send('socket-message', message)
   }
 
-
-  socket.on("conversation/*", handleMessage);
-  mainWindow.on("close", () => {
-    socket.off("message", handleMessage);
-  })
-
-  ipcMain.on("socket-message", (_, message) => {
-    socket.emit("message", message);
+  ipcMain.on("send-message", (_, { message, topic }) => {
+    socket.emit(topic, message);
   });
+
+  var conv = ['conversation/1', 'conversation/2', 'conversation/3'];
+  conv.forEach(element => {
+
+    const handleMessage = (message: unknown) => {
+      console.log("Received message : ", message);
+      console.log("Received id : ", element);
+      mainWindow.webContents.send(element, message)
+    }
+
+    console.log(element)
+    socket.on(element, handleMessage);
+  });
+
+
+  function AddSocket(newSocket: string) {
+
+    socket.on(newSocket, handleMessage)
+    conv.push(newSocket)
+  }
+
+  function Remove(element: string) {
+    conv = conv.filter(item => item !== element);
+    socket.removeAllListeners(element)
+  }
+
+  mainWindow.on("close", () => {
+    conv.forEach(item => {
+      socket.removeAllListeners(item)
+    })
+  })
 };
 
 // This method will be called when Electron has finished

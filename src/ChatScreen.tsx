@@ -1,6 +1,7 @@
-import { ReactNode, useEffect, useState } from "react";
-import { useSocket } from "./providers/SocketProvider"
+import React, { useState, useEffect } from "react";
+import { useSocket } from "./providers/SocketProvider";
 import { useMessage } from "./store/message";
+import './style/chatScreen.css'
 
 function ChatInput() {
     const [message, setMessage] = useState("");
@@ -8,12 +9,13 @@ function ChatInput() {
     const socket = useSocket();
 
     return (
-        <form onSubmit={(event) => {
-            event.preventDefault();
-            socket.send({ type: "chat-message", content: message });
-            setMessage("");
-            newMessage(message)
-        }}
+        <form
+            onSubmit={(event) => {
+                event.preventDefault();
+                socket.send({ type: "chat-message", content: message });
+                setMessage("");
+                newMessage(message);
+            }}
         >
             <input
                 value={message}
@@ -25,7 +27,7 @@ function ChatInput() {
 }
 
 function Message({ children }: { children: ReactNode }) {
-    return <p>{children}</p>
+    return <p>{children}</p>;
 }
 
 function isChatEvent(
@@ -41,17 +43,16 @@ function isChatEvent(
 
 function MessageList() {
     const { message: messagesApp, newMessage } = useMessage();
-
-
     const socket = useSocket();
+
     useEffect(() => {
         const handleMessage = (message: unknown) => {
             if (!isChatEvent(message)) {
                 return;
             }
 
+            newMessage(message.content);
         };
-
 
         return socket.onMessage(handleMessage);
     }, [socket]);
@@ -68,10 +69,10 @@ function MessageList() {
 export function ChatScreen() {
     return (
         <div>
-            {/* <MessageList />
-            <ChatInput /> */}
+            {/* <MessageList /> <ChatInput /> */}
             <Allchats />
-        </div>)
+        </div>
+    );
 }
 
 interface AllChatType {
@@ -82,16 +83,28 @@ interface AllChatType {
 function Allchats(): JSX.Element {
     const allChats: AllChatType[] = [
         { id: 1, number: 1 },
-        { id: 2, number: 2 }
+        { id: 2, number: 2 },
+        { id: 3, number: 3 },
     ];
 
     return (
-        <div>
-            {
-                allChats.map((chat) => (
-                    <button> Chat n° {chat.number}</button>
-                ))
-            }
+        <div className="all-chats">
+            {allChats.map((chat) => (
+                <button key={chat.id}>Chat n° {chat.number}</button>
+            ))}
         </div>
     );
 }
+
+function ParticularChat(number) {
+    const socket = useSocket();
+
+    socket.on("conversation/" + number);
+
+    return (
+        <>
+            <div></div>
+        </>
+    );
+}
+
